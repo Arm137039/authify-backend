@@ -51,14 +51,12 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
       
-- name: Deploy to VPS
+      - name: Deploy to VPS
         run: |
-          # Copier le binaire
           scp -i ~/.ssh/deploy_key -P ${{ secrets.VPS_PORT }} \
             target/release/authify-api \
             ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }}:/opt/apps/authify/backend/authify-api
           
-          # Rendre exécutable et redémarrer
           ssh -i ~/.ssh/deploy_key -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} << 'EOF'
             cd /opt/apps/authify/backend
             chmod +x authify-api
