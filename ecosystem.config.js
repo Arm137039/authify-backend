@@ -1,7 +1,7 @@
 module.exports = {
   apps: [{
     name: 'authify-api',
-    script: '/opt/apps/authify/backend/target/release/authify-api',
+    script: '/opt/apps/authify/backend/authify-api',
     cwd: '/opt/apps/authify/backend',
     instances: 1,
     autorestart: true,
