@@ -45,26 +45,19 @@ jobs:
         run: cargo build --release --verbose
       
       - name: Setup SSH
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
       
       - name: Deploy to VPS
-        env:
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_USERNAME: ${{ secrets.VPS_USERNAME }}
         run: |
-          # Copier le binaire compilé
           scp -i ~/.ssh/deploy_key -P 22 \
             target/release/authify-api \
-            $VPS_USERNAME@$VPS_HOST:/opt/apps/authify/backend/target/release/
+            ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }}:/opt/apps/authify/backend/target/release/
           
-          # Redémarrer l'application avec PM2
-          ssh -i ~/.ssh/deploy_key -p 22 $VPS_USERNAME@$VPS_HOST << 'EOF'
+          ssh -i ~/.ssh/deploy_key -p 22 ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} << 'EOF'
             cd /opt/apps/authify/backend
             pm2 restart authify-api || pm2 start ecosystem.config.js
             pm2 save
