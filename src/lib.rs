@@ -48,27 +48,50 @@ impl AppState {
         })
     }
 
+    /// Helper pour exécuter un fichier de migration avec plusieurs statements
+    async fn execute_migration_file(
+        &self,
+        sql: &str,
+        name: &str,
+    ) -> Result<(), error::AppError> {
+        for statement in sql.split(';') {
+            let statement = statement.trim();
+            if !statement.is_empty() && !statement.starts_with("--") {
+                sqlx::query(statement)
+                    .execute(&self.db_pool)
+                    .await
+                    .map_err(|e| {
+                        error::AppError::Internal(format!("Migration {} échouée: {}", name, e))
+                    })?;
+            }
+        }
+        Ok(())
+    }
+
     /// Exécute les migrations SQL
     pub async fn run_migrations(&self) -> Result<(), error::AppError> {
         tracing::info!("Exécution des migrations...");
 
         // Migration 1: users
-        sqlx::query(include_str!("../migrations/001_create_users.sql"))
-            .execute(&self.db_pool)
-            .await
-            .map_err(|e| error::AppError::Internal(format!("Migration users échouée: {}", e)))?;
+        self.execute_migration_file(
+            include_str!("../migrations/001_create_users.sql"),
+            "users",
+        )
+        .await?;
 
         // Migration 2: posts
-        sqlx::query(include_str!("../migrations/002_create_posts.sql"))
-            .execute(&self.db_pool)
-            .await
-            .map_err(|e| error::AppError::Internal(format!("Migration posts échouée: {}", e)))?;
+        self.execute_migration_file(
+            include_str!("../migrations/002_create_posts.sql"),
+            "posts",
+        )
+        .await?;
 
         // Migration 3: likes
-        sqlx::query(include_str!("../migrations/003_create_likes.sql"))
-            .execute(&self.db_pool)
-            .await
-            .map_err(|e| error::AppError::Internal(format!("Migration likes échouée: {}", e)))?;
+        self.execute_migration_file(
+            include_str!("../migrations/003_create_likes.sql"),
+            "likes",
+        )
+        .await?;
 
         tracing::info!("Migrations terminées avec succès");
 

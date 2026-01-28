@@ -1,4 +1,6 @@
+# Rust
 /target
+**/*.rs.bk
 
 # Environment files
 .env
@@ -9,3 +11,28 @@
 firebase-credentials.json
 *-service-account.json
 *.pem
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Database
+postgres-data/
+*.db
+*.sqlite
+
+# PM2
+.pm2/
+pids/
