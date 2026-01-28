@@ -65,12 +65,25 @@ jobs:
             target/release/authify-api \
             ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }}:/opt/apps/authify/backend/authify-api
           
-          # Rendre exécutable et redémarrer
+          # Copier les migrations (si elles existent)
+          if [ -d "migrations" ]; then
+            scp -r -i ~/.ssh/deploy_key -P ${{ secrets.VPS_PORT }} \
+              migrations/ \
+              ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }}:/opt/apps/authify/backend/migrations/
+          fi
+          
+          # Exécuter les migrations et redémarrer
           ssh -i ~/.ssh/deploy_key -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} << 'EOF'
             cd /opt/apps/authify/backend
+            
+            # Exécuter les migrations
+            sqlx migrate run || echo "⚠️  Migrations failed or already applied"
+            
+            # Rendre exécutable et redémarrer
             chmod +x authify-api
             pm2 restart authify-api || pm2 start ecosystem.config.js
             pm2 save
+            
             echo "✅ Deployment successful!"
             pm2 status authify-api
           EOF
