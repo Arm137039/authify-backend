@@ -68,7 +68,7 @@ jobs:
           # Copier les migrations (si elles existent)
           if [ -d "migrations" ]; then
             scp -r -i ~/.ssh/deploy_key -P ${{ secrets.VPS_PORT }} \
-              migrations/ \
+              migrations/* \
               ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }}:/opt/apps/authify/backend/migrations/
           fi
           
