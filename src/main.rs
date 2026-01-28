@@ -22,7 +22,13 @@ async fn main() {
     // Initialiser l'état de l'application
     let state = AppState::new(config)
         .await
-        .expect("Erreur d'initialisation Firebase");
+        .expect("Erreur d'initialisation");
+
+    // Exécuter les migrations
+    state
+        .run_migrations()
+        .await
+        .expect("Erreur lors des migrations");
 
     // Créer le routeur
     let app = create_router(state);

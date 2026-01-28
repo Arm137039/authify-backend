@@ -1,7 +1,8 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
 pub struct User {
     pub uid: String,
     pub email: String,
@@ -11,13 +12,13 @@ pub struct User {
     pub bio: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub avatar_url: Option<String>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub followers_count: u64,
-    pub following_count: u64,
-    pub posts_count: u64,
+    pub followers_count: i64,
+    pub following_count: i64,
+    pub posts_count: i64,
     pub is_verified: bool,
     pub is_private: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 impl User {
